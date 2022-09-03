@@ -1,13 +1,12 @@
+import com.fazecast.jSerialComm.*;
+
 public class Test {
-    public static void main(String args[]){
-        Dialer dialer = new Dialer(3, 50);
-        int combo[];
-        do{
-            combo = dialer.getNextCombination(3);
-            for(int i = 0; i < combo.length; i++){
-                System.out.print(combo[i] + " ");
-            }
-            System.out.println();
-        }while(combo[0] < 2);
+    public static void main(String[] args){
+
+        SerialPort[] coms = SerialPort.getCommPorts();
+
+        for(SerialPort port : coms)
+            System.out.println(port.getDescriptivePortName());
+
     }
 }
