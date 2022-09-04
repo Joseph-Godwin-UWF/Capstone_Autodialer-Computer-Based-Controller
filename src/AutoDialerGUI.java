@@ -11,7 +11,7 @@ public class AutoDialerGUI extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         AutoDialerGUI.stage = stage; // initialize value of stage.
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/sample.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/AutoDialerGUI.fxml"));
         Scene scene = new Scene(loader.load());
         stage.setScene(scene);
         stage.show();
