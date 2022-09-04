@@ -7,6 +7,5 @@ public class Test {
 
         for(SerialPort port : coms)
             System.out.println(port.getDescriptivePortName());
-
     }
 }

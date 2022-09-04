@@ -10,6 +10,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.collections.FXCollections?>
 
 <TabPane fx:controller="AutoDialerGUIController" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="158.0" prefWidth="900.0" tabClosingPolicy="UNAVAILABLE" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/18">
   <tabs>
@@ -35,10 +36,10 @@
                                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                              </padding>
                                           </Label>
-                                          <ComboBox id="comPortComboBox" prefWidth="150.0">
-                                             <padding>
-                                                <Insets left="5.0" right="5.0" />
-                                             </padding>
+                                          <ComboBox id="comPortComboBox" fx:id="comPortComboBox" prefWidth="150.0">
+                                              <items>
+                                                  <FXCollections fx:factory="observableArrayList" />
+                                              </items>
                                           </ComboBox>
                                           <Button id="refreshButton" mnemonicParsing="false" text="Refresh"
                                             onAction="#refreshButtonClicked"/>
