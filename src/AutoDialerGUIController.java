@@ -14,24 +14,44 @@ public class AutoDialerGUIController {
     private ComboBox<String> comPortComboBox;
 
     SerialPort[] coms;
+    SerialPort arduinoPort = null;
 
     @FXML
     public void initialize(){
+        updateComboBox();
+    }
+
+    public void refreshButtonClicked(){
+        System.out.println("Pressed refresh button");
+        comPortComboBox.getItems().clear();
+        updateComboBox();
+
+    }
+    public void openComPortButtonClicked(){
+        int portIndex = comPortComboBox.getSelectionModel().getSelectedIndex();
+        if(portIndex != -1) { // if an item is selected
+            arduinoPort = coms[portIndex];
+            arduinoPort.openPort();
+        }
+
+        if(arduinoPort.isOpen()){
+            System.out.println("Port Is Open");
+            arduinoPort.setBaudRate(9600);
+            String command = "connecting";
+            arduinoPort.writeBytes(command.getBytes(), command.length());
+        }
+
+    }
+    public void closeComPortButtonClicked(){
+        System.out.println("Pressed closeComPort button");
+    }
+
+    private void updateComboBox(){
         coms = SerialPort.getCommPorts();
         List<String> availableComPorts = new ArrayList<String>();
 
         for(SerialPort port : coms)
             availableComPorts.add(port.getDescriptivePortName());
         comPortComboBox.getItems().addAll(availableComPorts);
-    }
-
-    public void refreshButtonClicked(){
-        System.out.println("Pressed refresh button");
-    }
-    public void openComPortButtonClicked(){
-        System.out.println("Pressed openComPort button");
-    }
-    public void closeComPortButtonClicked(){
-        System.out.println("Pressed closeComPort button");
     }
 }
