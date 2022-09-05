@@ -51,8 +51,8 @@
                                     </HBox>
                                     <HBox spacing="10.0">
                                        <children>
-                                          <Button id="openComPortButton" mnemonicParsing="false" onAction="#openComPortButtonClicked" text="Open" />
-                                          <Button id="closeComPortButton" mnemonicParsing="false" onAction="#closeComPortButtonClicked" text="Close" />
+                                          <Button id="openComPortButton" fx:id="openPortButton" mnemonicParsing="false" onAction="#openComPortButtonClicked" text="Open" />
+                                          <Button id="closeComPortButton" fx:id="closePortButton" mnemonicParsing="false" onAction="#closeComPortButtonClicked" text="Close" />
                                        </children>
                                        <padding>
                                           <Insets left="50.0" />

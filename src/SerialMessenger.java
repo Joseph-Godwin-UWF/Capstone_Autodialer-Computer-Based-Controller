@@ -35,6 +35,11 @@ public class SerialMessenger implements SerialPortMessageListener {
     SerialMessenger(SerialPort serialPort){
         this.serialPort = serialPort;
         this.openPort();
+        if(!this.serialPort.isOpen()){
+            System.out.println("Error connecting to Serial Port");
+            System.exit(0);
+        }
+
         if(this.serialPort.bytesAvailable() > 0) {
             serialPort.flushIOBuffers();
         }

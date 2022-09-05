@@ -3,6 +3,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 
@@ -13,14 +14,14 @@ import java.util.ResourceBundle;
 
 
 public class AutoDialerGUIController {
-    @FXML
-    private ComboBox<String> comPortComboBox;
-    @FXML
-    TextField comboSizeTextField;
-    @FXML
-    TextField tickCountTextField;
-    @FXML
-    TextField combinationTextBox;
+    @FXML private ComboBox<String> comPortComboBox;
+    @FXML TextField comboSizeTextField;
+    @FXML TextField tickCountTextField;
+    @FXML TextField combinationTextBox;
+    @FXML Button closePortButton;
+    @FXML Button openPortButton;
+    @FXML Button startDialingButton;
+    @FXML Button stopDialingButton;
 
     SerialPort[] coms;
     SerialPort arduinoPort = null;
@@ -46,8 +47,11 @@ public class AutoDialerGUIController {
             arduinoPort = coms[portIndex];
             messenger = new SerialMessenger(arduinoPort);
         }
-        else
+        else {
             System.out.println("Please select a port");
+            return;
+        }
+
     }
     public void closeComPortButtonClicked(){
         messenger.closePort();
@@ -63,7 +67,10 @@ public class AutoDialerGUIController {
     }
 
     public void startDialingButtonPressed(){
-        //FIXME: add check that port is opened
+        if(messenger == null || !messenger.serialPort.isOpen()) {
+            System.out.println("Port is not open");
+            return;
+        }
         messenger.sendMessage("Ready");
         dialThread = new StopThread();
         dialThread.start();
@@ -86,6 +93,7 @@ public class AutoDialerGUIController {
             }
         });
     }
+
     class StopThread extends Thread {
         /* Setting the volatile variable
            exit to false */
