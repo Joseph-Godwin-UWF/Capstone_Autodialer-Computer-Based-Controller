@@ -33,6 +33,20 @@ public class Dialer {
 
     public int[] getCurrentCombination(){ return this.combination; }
     public int getTickCount() { return this.tickCount; }
+
+    public void setCurrentCombination(int[] combo){
+        this.combination = combo;
+    }
+
+    public String ToString(){
+        String stringCombo = "";
+        for(int i = 0; i < this.combination.length; i++){
+            stringCombo += String.valueOf(this.combination[i]);
+            if(i < this.combination.length - 1)
+                stringCombo += "-";
+        }
+        return stringCombo;
+    }
 }
 
 

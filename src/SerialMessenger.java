@@ -1,14 +1,19 @@
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortEvent;
 import com.fazecast.jSerialComm.SerialPortMessageListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 
+import java.beans.EventHandler;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SerialMessenger implements SerialPortMessageListener {
 
-    List<String> dataBuffer = new ArrayList<String>();
+    List<String> dataBuffer = new ArrayList<>();
     SerialPort serialPort;
 
     @Override
@@ -29,16 +34,32 @@ public class SerialMessenger implements SerialPortMessageListener {
 
     SerialMessenger(SerialPort serialPort){
         this.serialPort = serialPort;
+        this.openPort();
+        if(this.serialPort.bytesAvailable() > 0) {
+            serialPort.flushIOBuffers();
+        }
+    }
+
+    public void closePort(){
+        this.serialPort.removeDataListener();
+        this.serialPort.closePort();
+    }
+
+    public void openPort(){
         this.serialPort.openPort();
         this.serialPort.addDataListener(this);
     }
 
     String getNextMessage(){
-        if(dataBuffer.isEmpty())
+        if(dataBuffer.size() == 0)
             return null;
-        String message = dataBuffer.get(0);
-        dataBuffer.remove(0);
+        String message = dataBuffer.remove(0);
         return message;
+    }
+
+    public void sendMessage(String message){
+        message += "\r\n";
+        this.serialPort.writeBytes(message.getBytes(), message.length());
     }
 
     public void showMessages(){
@@ -46,5 +67,4 @@ public class SerialMessenger implements SerialPortMessageListener {
             System.out.print(message);
         }
     }
-
 }

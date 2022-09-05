@@ -9,10 +9,11 @@ public class Test {
         System.out.println(coms[0].getDescriptivePortName());
         SerialMessenger messenger = new SerialMessenger(coms[0]);
 
-        TimeUnit.SECONDS.sleep(1);
+        TimeUnit.SECONDS.sleep(3);
         for(int i =0; i < 6; i++){
             System.out.println(messenger.getNextMessage());
         }
+        messenger.closePort();
 
     }
 }
