@@ -38,14 +38,17 @@ public class Dialer {
         this.combination = combo;
     }
 
-    public String ToString(){
+    public String ToString(String delimiter){
         String stringCombo = "";
         for(int i = 0; i < this.combination.length; i++){
             stringCombo += String.valueOf(this.combination[i]);
             if(i < this.combination.length - 1)
-                stringCombo += "-";
+                stringCombo += delimiter;
         }
         return stringCombo;
+    }
+    public String ToString(){
+        return ToString("-");
     }
 }
 

@@ -1,16 +1,11 @@
 import com.fazecast.jSerialComm.SerialPort;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 
 public class AutoDialerGUIController {
@@ -34,6 +29,8 @@ public class AutoDialerGUIController {
         updateComboBox();
         numericValuesOnly(comboSizeTextField);
         numericValuesOnly(tickCountTextField);
+        closePortButton.setDisable(true);
+        stopDialingButton.setDisable(true);
     }
 
     public void refreshButtonClicked(){
@@ -44,8 +41,11 @@ public class AutoDialerGUIController {
     public void openComPortButtonClicked(){
         int portIndex = comPortComboBox.getSelectionModel().getSelectedIndex();
         if(portIndex != -1) { // if an item is selected
+
             arduinoPort = coms[portIndex];
             messenger = new SerialMessenger(arduinoPort);
+            openPortButton.setDisable(true);
+            closePortButton.setDisable(false);
         }
         else {
             System.out.println("Please select a port");
@@ -54,7 +54,44 @@ public class AutoDialerGUIController {
 
     }
     public void closeComPortButtonClicked(){
+        if(this.dialThread != null)
+            stopDialingButtonPressed();
         messenger.closePort();
+        openPortButton.setDisable(false);
+        closePortButton.setDisable(true);
+    }
+
+    public void startDialingButtonPressed(){
+        if(messenger == null || !messenger.serialPort.isOpen()) {
+            System.out.println("Port is not open");
+            return;
+        }
+        if(dialer == null){
+            int comboSize = (comboSizeTextField.getText().isBlank()) ? 3 : Integer.parseInt(comboSizeTextField.getText());
+            int tickCount = (tickCountTextField.getText().isBlank()) ? 100 : Integer.parseInt(tickCountTextField.getText());
+            dialer = new Dialer(comboSize, tickCount);
+        }
+        messenger.sendMessage("Ready");
+        dialThread = new StopThread();
+        dialThread.start();
+        startDialingButton.setDisable(true);
+        stopDialingButton.setDisable(false);
+    }
+
+    public void stopDialingButtonPressed(){
+        dialer.setCurrentCombination(dialThread.stopThread());
+        startDialingButton.setDisable(false);
+        stopDialingButton.setDisable(true);
+    }
+
+    public void setDialButtonPressed(){
+        if(comboSizeTextField.getText().isBlank() || tickCountTextField.getText().isBlank()){
+            System.out.println("Dialer Variable entree left blank");
+            return;
+        }
+        int comboSize = Integer.parseInt(comboSizeTextField.getText());
+        int dialTicks = Integer.parseInt(tickCountTextField.getText());
+        dialer = new Dialer(comboSize, dialTicks);
     }
 
     private void updateComboBox(){
@@ -64,26 +101,6 @@ public class AutoDialerGUIController {
         for(SerialPort port : coms)
             availableComPorts.add(port.getDescriptivePortName());
         comPortComboBox.getItems().addAll(availableComPorts);
-    }
-
-    public void startDialingButtonPressed(){
-        if(messenger == null || !messenger.serialPort.isOpen()) {
-            System.out.println("Port is not open");
-            return;
-        }
-        messenger.sendMessage("Ready");
-        dialThread = new StopThread();
-        dialThread.start();
-    }
-
-    public void stopDialingButtonPressed(){
-        dialer.setCurrentCombination(dialThread.stopThread());
-    }
-
-    public void setDialButtonPressed(){
-        int comboSize = Integer.parseInt(comboSizeTextField.getText());
-        int dialTicks = Integer.parseInt(tickCountTextField.getText());
-        dialer = new Dialer(comboSize, dialTicks);
     }
 
     public static void numericValuesOnly(final TextField field) {
@@ -117,7 +134,7 @@ public class AutoDialerGUIController {
                     switch(message){
                         case "Next Combo\r\n":
                             dialer.getNextCombination();
-                            messenger.sendMessage(dialer.ToString());
+                            messenger.sendMessage(dialer.ToString(" "));
                             combinationTextBox.textProperty().set("Dialing: " + dialer.ToString());
                             System.out.println(dialer.ToString());
                             break;
