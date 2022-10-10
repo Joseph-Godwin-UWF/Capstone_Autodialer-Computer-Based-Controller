@@ -22,6 +22,7 @@ public class AutoDialerGUIController {
     SerialPort arduinoPort = null;
     SerialMessenger messenger;
     Dialer dialer;
+    ComboParser comboParser;
     StopThread dialThread;
 
     @FXML
@@ -92,6 +93,7 @@ public class AutoDialerGUIController {
         int comboSize = Integer.parseInt(comboSizeTextField.getText());
         int dialTicks = Integer.parseInt(tickCountTextField.getText());
         dialer = new Dialer(comboSize, dialTicks);
+        comboParser = new ComboParser(dialer);
     }
 
     private void updateComboBox(){
@@ -128,18 +130,28 @@ public class AutoDialerGUIController {
         public void run() {
             // Keep the task in while loop
             String message;
+            String code;
             while (!exit) {
                 message = messenger.getNextMessage();
+                code = messenger.getMessageCodeNumber(message);
                 if (message != null) {
-                    switch(message){
-                        case "Next Combo\r\n":
-                            dialer.getNextCombination();
-                            messenger.sendMessage(dialer.ToString(" "));
-                            combinationTextBox.textProperty().set("Dialing: " + dialer.ToString());
-                            System.out.println(dialer.ToString());
+                    switch(code){
+                        case "000":
+                            //FIXME Successfully initialized stepper motor parameters
+                            // -dial needs to be cleared, then
+                            // -ready to begin dialing
+                        case "001":
+                            //FIXME Previous dial turn complete, no flags set (open bolt torque threshold not reached)
+                            // -waiting for TurnDial command
                             break;
-                        case "Safe Cracked\r\n":
-                            //FIXME add something here
+                        case "002":
+                            //FIXME Previous dial turn complete, open bolt torque threshold reached(safe presumed unlocked)
+                            // -combination likely found
+                            // -task complete
+                            break;
+                        case "600":
+                            //FIXME: invalid message
+                            // -waiting for SetUpStepper message
                             break;
                         default:
                             System.out.print("Invalid: " + message);

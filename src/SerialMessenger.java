@@ -62,6 +62,17 @@ public class SerialMessenger implements SerialPortMessageListener {
         return message;
     }
 
+    String getMessageCodeNumber(String message){
+        if(message == null)
+            return null;
+        message = message.trim(); //removes leading and trailing whitespace
+        int index = message.indexOf(' ');
+
+        if (index < -1) //message is only one word
+            return message;
+        return message.substring(0, index).trim(); //returns the first word without whitespace
+    }
+
     public void sendMessage(String message){
         message += "\r\n";
         this.serialPort.writeBytes(message.getBytes(), message.length());

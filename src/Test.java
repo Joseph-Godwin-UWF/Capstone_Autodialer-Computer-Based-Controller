@@ -3,17 +3,31 @@ import com.fazecast.jSerialComm.*;
 import java.util.concurrent.TimeUnit;
 
 public class Test {
-    public static void main(String[] args) throws InterruptedException {
+    private int[] prevCombo = {1,2,3,4,2,6,7,9};
+    private int[] combo = {1, 2, 3, 4, 5, 6, 7, 8};
 
-        SerialPort[] coms = SerialPort.getCommPorts();
-        System.out.println(coms[0].getDescriptivePortName());
-        SerialMessenger messenger = new SerialMessenger(coms[0]);
+    Test() {
 
-        TimeUnit.SECONDS.sleep(3);
-        for(int i =0; i < 6; i++){
-            System.out.println(messenger.getNextMessage());
+    }
+
+    private boolean previousComboOnlyDiffersByLastNumber() {
+        if (prevCombo[0] == -998)
+            return true;
+
+        for (int i = 0; i < this.combo.length - 1; i++) {
+            if (this.combo[i] != this.prevCombo[i])
+                return false;
         }
-        messenger.closePort();
+        return true;
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        Test t = new Test();
+        if (t.previousComboOnlyDiffersByLastNumber())
+            System.out.println("hello");
+        else
+            System.out.println("nope");
+
 
     }
 }
