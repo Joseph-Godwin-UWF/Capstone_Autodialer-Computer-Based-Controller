@@ -10,23 +10,22 @@ public class Test {
 
     }
 
-    private boolean previousComboOnlyDiffersByLastNumber() {
-        if (prevCombo[0] == -998)
-            return true;
-
-        for (int i = 0; i < this.combo.length - 1; i++) {
-            if (this.combo[i] != this.prevCombo[i])
-                return false;
-        }
-        return true;
-    }
 
     public static void main(String[] args) throws InterruptedException {
         Test t = new Test();
-        if (t.previousComboOnlyDiffersByLastNumber())
-            System.out.println("hello");
-        else
-            System.out.println("nope");
+
+        Dialer dialer = new Dialer(3, 360);
+        ComboParser parser = new ComboParser(dialer, new int[]{270, 180, 358});
+
+        System.out.println(parser.getNextRotationCommand());
+        System.out.println(parser.getNextRotationCommand());
+        System.out.println(parser.getNextRotationCommand());
+        System.out.println(parser.getNextRotationCommand());
+        System.out.println("-----------------------------");
+        System.out.println(parser.getNextRotationCommand());
+        System.out.println(parser.getNextRotationCommand());
+        System.out.println(parser.getNextRotationCommand());
+        System.out.println(parser.getNextRotationCommand());
 
 
     }

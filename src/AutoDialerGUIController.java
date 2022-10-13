@@ -72,7 +72,7 @@ public class AutoDialerGUIController {
             int tickCount = (tickCountTextField.getText().isBlank()) ? 100 : Integer.parseInt(tickCountTextField.getText());
             dialer = new Dialer(comboSize, tickCount);
         }
-        messenger.sendMessage("Ready");
+        messenger.sendMessage("SetUpStepper:1.8;200;400");
         dialThread = new StopThread();
         dialThread.start();
         startDialingButton.setDisable(true);
@@ -138,20 +138,26 @@ public class AutoDialerGUIController {
                     switch(code){
                         case "000":
                             //FIXME Successfully initialized stepper motor parameters
-                            // -dial needs to be cleared, then
-                            // -ready to begin dialing
+                            //ready to begin dialing
+                            //what needs to be done on software side?
+                            //-allow "start dialing"
+                            System.out.println("ARDUINO READY TO ACCEPT TURN COMMANDS");
                         case "001":
-                            //FIXME Previous dial turn complete, no flags set (open bolt torque threshold not reached)
-                            // -waiting for TurnDial command
+                            messenger.sendMessage(comboParser.getNextRotationCommand());
+                            combinationTextBox.setText("Dialing: " + comboParser.getComboAsString());
                             break;
                         case "002":
                             //FIXME Previous dial turn complete, open bolt torque threshold reached(safe presumed unlocked)
                             // -combination likely found
                             // -task complete
+                            // display the correct combo
+                            System.out.println("COMBO FOUND");
                             break;
                         case "600":
                             //FIXME: invalid message
                             // -waiting for SetUpStepper message
+                            // -prompt for setup stepper
+                            System.out.println("Invalid message, send SetUpStepper message");
                             break;
                         default:
                             System.out.print("Invalid: " + message);
