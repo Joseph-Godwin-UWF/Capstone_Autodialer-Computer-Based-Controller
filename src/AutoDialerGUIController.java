@@ -71,8 +71,10 @@ public class AutoDialerGUIController {
             int comboSize = (comboSizeTextField.getText().isBlank()) ? 3 : Integer.parseInt(comboSizeTextField.getText());
             int tickCount = (tickCountTextField.getText().isBlank()) ? 100 : Integer.parseInt(tickCountTextField.getText());
             dialer = new Dialer(comboSize, tickCount);
+            dialer.setCurrentCombination(new int[]{39, 2, 25}); //FIXME: CHANGE THIS TO
         }
-        messenger.sendMessage("SetUpStepper:1.8;200;400");
+        //messenger.sendMessage("SetUpStepper:1.8;200;400");
+        messenger.sendMessage("TurnDial:0");/*remove?*/
         dialThread = new StopThread();
         dialThread.start();
         startDialingButton.setDisable(true);
@@ -94,6 +96,7 @@ public class AutoDialerGUIController {
         int dialTicks = Integer.parseInt(tickCountTextField.getText());
         dialer = new Dialer(comboSize, dialTicks);
         comboParser = new ComboParser(dialer);
+        messenger.sendMessage("SetUpStepper:1.8;100;100");
     }
 
     private void updateComboBox(){

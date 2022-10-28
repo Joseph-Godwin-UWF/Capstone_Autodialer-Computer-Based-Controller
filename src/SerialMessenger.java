@@ -34,6 +34,7 @@ public class SerialMessenger implements SerialPortMessageListener {
 
     SerialMessenger(SerialPort serialPort){
         this.serialPort = serialPort;
+        serialPort.setBaudRate(115200);
         this.openPort();
         if(!this.serialPort.isOpen()){
             System.out.println("Error connecting to Serial Port");
@@ -63,12 +64,13 @@ public class SerialMessenger implements SerialPortMessageListener {
     }
 
     String getMessageCodeNumber(String message){
+        //System.out.println("getMessageCodeNumber:" + message);
         if(message == null)
             return null;
         message = message.trim(); //removes leading and trailing whitespace
-        int index = message.indexOf(' ');
+        int index = message.indexOf('-');
 
-        if (index < -1) //message is only one word
+        if (index <= -1) //message is only one word //FIXME: changed this to <=
             return message;
         return message.substring(0, index).trim(); //returns the first word without whitespace
     }

@@ -1,5 +1,7 @@
 public class ComboParser {
     public static final int COMBO_FINISHED = -999;
+    public static boolean FirstComboDialed = false;
+    public static final int POLARITY = 1;
     public static final int NO_PREVIOUS_COMBO = -998;
     public static final int COUNTER_CLOCKWISE = -1;
     public static final int CLOCKWISE = 1;
@@ -44,6 +46,7 @@ public class ComboParser {
         int degreesToTurn = 0;
 
         if(tryToOpen){
+            System.out.println("Trying to open");
             degreesToTurn += DEGREES_TO_UNLOCK;
             this.index = 0;
             tryToOpen = false;
@@ -53,7 +56,8 @@ public class ComboParser {
         else {
             switch (index) {
                 case 0:
-                    if (previousComboOnlyDiffersByLastNumber()) {
+                    if (previousComboOnlyDiffersByLastNumber() && FirstComboDialed) {
+                        System.out.println("prevonlydiff");
                         degreesToTurn -= DEGREES_TO_UNLOCK;
                         degreesToTurn -= combo[2] - prevCombo[2];
                         tryToOpen = true;
@@ -77,13 +81,14 @@ public class ComboParser {
                     this.index = 2;
                     break;
                 case 2:
-                    degreesToTurn -= 360;
+                    degreesToTurn += 360;
                     if(combo[1] > combo[2]){
                         degreesToTurn -= 360 - getDegreesFromNumber(combo[1] - combo[2]);
                     }
                     else{
                         degreesToTurn -= getDegreesFromNumber(combo[2] - combo[1]);
                     }
+                    FirstComboDialed = true;
                     tryToOpen = true;
                     //index gets set back to 0 in the tryToOpen block
                     break;
@@ -95,6 +100,7 @@ public class ComboParser {
         currPosInDegrees += degreesToTurn;
         currPosInDegrees = getEquivalentAngle(currPosInDegrees);
         command += Integer.toString(degreesToTurn);
+        System.out.println(command);
         return command;
     }
 
