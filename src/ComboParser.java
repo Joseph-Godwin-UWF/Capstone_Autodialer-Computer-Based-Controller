@@ -1,12 +1,13 @@
 public class ComboParser {
     public static final int COMBO_FINISHED = -999;
     public static boolean FirstComboDialed = false;
-    public static final int POLARITY = 1;
+    public static final int POLARITY = -1;
     public static final int NO_PREVIOUS_COMBO = -998;
     public static final int COUNTER_CLOCKWISE = -1;
     public static final int CLOCKWISE = 1;
     public static final int DEGREES_TO_UNLOCK = 300; //FIXME: this will need to be fine-tuned
-    private final int degreesPerTick;
+    public static final int UNLOCK_INDEX = 80;
+    private final double degreesPerTick;
 
     private final int size;
     private final Dialer dialer;
@@ -16,15 +17,17 @@ public class ComboParser {
     private int index;
     private int currPosInDegrees;
     private boolean tryToOpen;
+    private boolean firstRun;
 
     ComboParser(Dialer dialer){
         this.dialer = dialer;
         this.combo = dialer.getNextCombination();
         this.index = 0;
         this.size = combo.length;
-        this.degreesPerTick = 360 / dialer.getTickCount();
+        this.degreesPerTick = 360.0 / dialer.getTickCount();
         this.currPosInDegrees = 0;
         this.tryToOpen = false;
+        this.firstRun = true;
     }
 
     ComboParser(Dialer dialer, int[] startingCombo){
@@ -42,36 +45,42 @@ public class ComboParser {
     }
 
     public String getNextRotationCommand(){
+        if(firstRun) {
+            setInitialCombo(dialer.getCurrentCombination());
+            firstRun = false;
+        }
         String command = "TurnDial:";
         int degreesToTurn = 0;
 
         if(tryToOpen){
             System.out.println("Trying to open");
-            degreesToTurn += DEGREES_TO_UNLOCK;
+            degreesToTurn += getDegreesFromNumber(combo[2]); //BACK TO 0
+            degreesToTurn += getDegreesFromNumber(100 - UNLOCK_INDEX);
             this.index = 0;
             tryToOpen = false;
             prevCombo = this.combo.clone();
-            this.combo = dialer.getNextCombination();
+            this.combo = dialer.getNextCombination(1);
         }
         else {
             switch (index) {
                 case 0:
                     if (previousComboOnlyDiffersByLastNumber() && FirstComboDialed) {
                         System.out.println("prevonlydiff");
-                        degreesToTurn -= DEGREES_TO_UNLOCK;
-                        degreesToTurn -= combo[2] - prevCombo[2];
+                        degreesToTurn -= getDegreesFromNumber(100- UNLOCK_INDEX); //back to 0
+                        degreesToTurn -= getDegreesFromNumber(combo[2]);
                         tryToOpen = true;
                         //keep index at 0;
                     }
                     else{
-                        degreesToTurn -= 360 - getDegreesFromNumber(currPosInDegrees);
-                        degreesToTurn -= 360 * 3;
+                        degreesToTurn -= 360 * 4; // 3 FULL ROTATIONS
+                        degreesToTurn -= 360 - currPosInDegrees; // back to 0
                         degreesToTurn -= getDegreesFromNumber(combo[0]);
+                        System.out.println("Reset deg: " + degreesToTurn);
                         this.index = 1;
                     }
                     break;
                 case 1:
-                    degreesToTurn += 360 * 2;
+                    degreesToTurn += 360 * 2; // 2 full rotations
                     if(combo[0] > combo[1] ){
                         degreesToTurn += getDegreesFromNumber(combo[0] - combo[1]);
                     }
@@ -81,8 +90,8 @@ public class ComboParser {
                     this.index = 2;
                     break;
                 case 2:
-                    degreesToTurn += 360;
-                    if(combo[1] > combo[2]){
+                    degreesToTurn -= 360;
+                    if(combo[1] >= combo[2]){
                         degreesToTurn -= 360 - getDegreesFromNumber(combo[1] - combo[2]);
                     }
                     else{
@@ -97,6 +106,8 @@ public class ComboParser {
                     break;
             }
         }
+        degreesToTurn *= POLARITY;
+        System.out.println("Combo being turned: " + dialer.ToString());
         currPosInDegrees += degreesToTurn;
         currPosInDegrees = getEquivalentAngle(currPosInDegrees);
         command += Integer.toString(degreesToTurn);
@@ -115,7 +126,7 @@ public class ComboParser {
         return true;
     }
 
-    int getDegreesFromNumber(int ticks){
+    double getDegreesFromNumber(int ticks){
         return ticks * degreesPerTick;
     }
 
@@ -139,5 +150,9 @@ public class ComboParser {
             }
         }
         return angle;
+    }
+
+    public void setInitialCombo(int[] combo){
+        this.combo = combo;
     }
 }

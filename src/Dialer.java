@@ -21,13 +21,16 @@ public class Dialer {
     public int[] getNextCombination(int delta){
         int lastIndex = combination.length - 1;
         for(int i = 0; i < combination.length; i++) {
-            if (combination[lastIndex - i] < tickCount - (delta - 1)) {
+            if (combination[lastIndex - i] < tickCount - delta) {
                 combination[lastIndex - i] += delta;
                 break;
             }
             combination[lastIndex - i] = 0;
         }
 
+        if(combination[lastIndex] == 0){
+            combination[lastIndex] = 1;
+        }
         return combination;
     }
 
