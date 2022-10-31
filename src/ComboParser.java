@@ -18,6 +18,7 @@ public class ComboParser {
     private int currPosInDegrees;
     private boolean tryToOpen;
     private boolean firstRun;
+    private int stepSizeMultiplier = 1;
 
     ComboParser(Dialer dialer){
         this.dialer = dialer;
@@ -64,6 +65,7 @@ public class ComboParser {
         else {
             switch (index) {
                 case 0:
+                    System.out.println("Rotating first index");
                     if (previousComboOnlyDiffersByLastNumber() && FirstComboDialed) {
                         System.out.println("prevonlydiff");
                         degreesToTurn -= getDegreesFromNumber(100- UNLOCK_INDEX); //back to 0
@@ -80,6 +82,7 @@ public class ComboParser {
                     }
                     break;
                 case 1:
+                    System.out.println("Rotating second index");
                     degreesToTurn += 360 * 2; // 2 full rotations
                     if(combo[0] > combo[1] ){
                         degreesToTurn += getDegreesFromNumber(combo[0] - combo[1]);
@@ -90,6 +93,7 @@ public class ComboParser {
                     this.index = 2;
                     break;
                 case 2:
+                    System.out.println("Rotating third index");
                     degreesToTurn -= 360;
                     if(combo[1] >= combo[2]){
                         degreesToTurn -= 360 - getDegreesFromNumber(combo[1] - combo[2]);
@@ -110,7 +114,7 @@ public class ComboParser {
         System.out.println("Combo being turned: " + dialer.ToString());
         currPosInDegrees += degreesToTurn;
         currPosInDegrees = getEquivalentAngle(currPosInDegrees);
-        command += Integer.toString(degreesToTurn);
+        command += Integer.toString(degreesToTurn * stepSizeMultiplier);
         System.out.println(command);
         return command;
     }
@@ -154,5 +158,8 @@ public class ComboParser {
 
     public void setInitialCombo(int[] combo){
         this.combo = combo;
+    }
+    public void setStepSizeMultiplier(int multiplier){
+        this.stepSizeMultiplier = multiplier;
     }
 }
