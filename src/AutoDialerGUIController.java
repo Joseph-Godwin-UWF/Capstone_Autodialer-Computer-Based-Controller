@@ -5,11 +5,13 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
 public class AutoDialerGUIController {
     @FXML private ComboBox<String> comPortComboBox;
+    @FXML private ComboBox<String> stepSizeComboBox;
     @FXML TextField comboSizeTextField;
     @FXML TextField tickCountTextField;
     @FXML TextField combinationTextBox;
@@ -24,10 +26,13 @@ public class AutoDialerGUIController {
     Dialer dialer;
     ComboParser comboParser;
     StopThread dialThread;
+    int stepSizeMultiplier = 1;
+    int stepSizeSelectionBits[] = new int[]{0, 0, 0};
 
     @FXML
     public void initialize(){
-        updateComboBox();
+        updatePortSelectionComboBox();
+        populateStepSizeSelectionComboBox();
         numericValuesOnly(comboSizeTextField);
         numericValuesOnly(tickCountTextField);
         closePortButton.setDisable(true);
@@ -36,7 +41,7 @@ public class AutoDialerGUIController {
 
     public void refreshButtonClicked(){
         comPortComboBox.getItems().clear();
-        updateComboBox();
+        updatePortSelectionComboBox();
 
     }
     public void openComPortButtonClicked(){
@@ -92,14 +97,17 @@ public class AutoDialerGUIController {
             System.out.println("Dialer Variable entree left blank");
             return;
         }
+        setStepSizeMultiplier();
         int comboSize = Integer.parseInt(comboSizeTextField.getText());
         int dialTicks = Integer.parseInt(tickCountTextField.getText());
         dialer = new Dialer(comboSize, dialTicks);
         comboParser = new ComboParser(dialer);
+        comboParser.setStepSizeMultiplier(stepSizeMultiplier);
+        //FIXME: SHOULD PROBABLY SET IN GUI
         messenger.sendMessage("SetUpStepper:1.8;100;100");
     }
 
-    private void updateComboBox(){
+    private void updatePortSelectionComboBox(){
         coms = SerialPort.getCommPorts();
         List<String> availableComPorts = new ArrayList<>();
 
@@ -107,6 +115,46 @@ public class AutoDialerGUIController {
             availableComPorts.add(port.getDescriptivePortName());
         comPortComboBox.getItems().addAll(availableComPorts);
     }
+
+    private void populateStepSizeSelectionComboBox(){
+        List<String> stepSizes = new ArrayList<>(Arrays.asList("1","1/2","1/4","1/8","1/16"));
+        stepSizeComboBox.getItems().addAll(stepSizes);
+    }
+
+    private void setStepSizeMultiplier(){
+        //check if stepSizeComboBox is empty
+        if(stepSizeComboBox.getSelectionModel().isEmpty()){
+            stepSizeMultiplier = 1; //DEFAULT TO FULL STEP
+            setStepSizeSelectionBits();
+            return;
+        }
+        String stepSizeFromComboBox = stepSizeComboBox.getSelectionModel().getSelectedItem();
+        String stepSizeDenominator = stepSizeFromComboBox.substring(stepSizeFromComboBox.indexOf('/') + 1);
+        stepSizeMultiplier = Integer.parseInt(stepSizeDenominator);
+        setStepSizeSelectionBits();
+    }
+
+    private void setStepSizeSelectionBits(){
+        //FIXME: all stepsizeSelectioNBits need updating
+        switch (stepSizeMultiplier){
+            case 2:
+                stepSizeSelectionBits = new int[]{1,0,0};
+                break;
+            case 4:
+                stepSizeSelectionBits = new int[]{1,1,0};
+                break;
+            case 8:
+                stepSizeSelectionBits = new int[]{0,0,1};
+                break;
+            case 16:
+                stepSizeSelectionBits = new int[]{1,0,1};
+                break;
+            default:
+                stepSizeSelectionBits = new int[]{0,0,0};
+                break;
+        }
+    }
+
 
     public static void numericValuesOnly(final TextField field) {
         field.textProperty().addListener((observable, oldValue, newValue) -> {
