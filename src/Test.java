@@ -15,17 +15,12 @@ public class Test {
         Test t = new Test();
 
         Dialer dialer = new Dialer(3, 360);
-        ComboParser parser = new ComboParser(dialer, new int[]{270, 180, 358});
+        dialer.setCurrentCombination(new int[]{40, 98, 54});
 
-        System.out.println(parser.getNextRotationCommand());
-        System.out.println(parser.getNextRotationCommand());
-        System.out.println(parser.getNextRotationCommand());
-        System.out.println(parser.getNextRotationCommand());
-        System.out.println("-----------------------------");
-        System.out.println(parser.getNextRotationCommand());
-        System.out.println(parser.getNextRotationCommand());
-        System.out.println(parser.getNextRotationCommand());
-        System.out.println(parser.getNextRotationCommand());
+        for(int i = 0; i < 200; i++){
+            dialer.getNextCombination();
+            System.out.println(dialer.ToString());
+        }
 
 
     }

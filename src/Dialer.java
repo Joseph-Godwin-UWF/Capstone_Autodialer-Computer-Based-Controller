@@ -4,6 +4,8 @@ public class Dialer {
     int tickCount;
     /** {@code @combination} an array storing the current combination */
     int[] combination;
+    boolean doubleLastDigitComboSent = false;
+    boolean doubleLastDigitDifferByDeltaSent = false;
 
     public Dialer(int comboSize, int tickCount){
         this.tickCount = tickCount;
@@ -20,16 +22,28 @@ public class Dialer {
      */
     public int[] getNextCombination(int delta){
         int lastIndex = combination.length - 1;
-        for(int i = 0; i < combination.length; i++) {
-            if (combination[lastIndex - i] < tickCount - delta) {
-                combination[lastIndex - i] += delta;
-                break;
-            }
-            combination[lastIndex - i] = 0;
+        if(combination[lastIndex] == combination[lastIndex - 1] && !doubleLastDigitComboSent){
+            doubleLastDigitComboSent = true;
+            return combination;
+        }
+        if(combination[lastIndex] == combination[lastIndex - 1] - delta && !doubleLastDigitDifferByDeltaSent){
+            doubleLastDigitDifferByDeltaSent = true;
+            return combination;
+        }
+        combination[lastIndex] += delta;
+        if(combination[lastIndex] >= 100){
+            combination[lastIndex] -= 100;
         }
 
-        if(combination[lastIndex] == 0){
-            combination[lastIndex] = 1;
+        if(doubleLastDigitComboSent && doubleLastDigitDifferByDeltaSent){
+            doubleLastDigitComboSent = false;
+            doubleLastDigitDifferByDeltaSent = false;
+            combination[lastIndex - 1] += delta;
+            if(combination[lastIndex - 1] >= 100){
+                combination[lastIndex - 1] -= 100;
+                combination[lastIndex - 2] += delta;
+            }
+            combination[lastIndex] = combination[lastIndex - 1];
         }
         return combination;
     }
