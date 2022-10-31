@@ -105,7 +105,17 @@ public class AutoDialerGUIController {
         comboParser.setStepSizeMultiplier(stepSizeMultiplier);
         //FIXME: SHOULD PROBABLY SET IN GUI
         messenger.sendMessage("SetUpStepper:1.8;100;100");
+        String stepBits = getStepSizeSelectionBits();
+        messenger.sendMessage("SetStepBits:" + stepBits);
     }
+
+    private String getStepSizeSelectionBits(){
+        String bits = "";
+        for(int bit : stepSizeSelectionBits){
+            bits += Integer.toString(bit);
+        }
+        return bits;
+    } //FIXME: VERIFY THIS WORKS
 
     private void updatePortSelectionComboBox(){
         coms = SerialPort.getCommPorts();
@@ -135,19 +145,19 @@ public class AutoDialerGUIController {
     }
 
     private void setStepSizeSelectionBits(){
-        //FIXME: all stepsizeSelectioNBits need updating
+        //FIXME: 1/2 and 1/4 probably swapped, no testing done yet
         switch (stepSizeMultiplier){
             case 2:
                 stepSizeSelectionBits = new int[]{1,0,0};
                 break;
             case 4:
-                stepSizeSelectionBits = new int[]{1,1,0};
+                stepSizeSelectionBits = new int[]{0,1,0};
                 break;
             case 8:
-                stepSizeSelectionBits = new int[]{0,0,1};
+                stepSizeSelectionBits = new int[]{1,1,0};
                 break;
             case 16:
-                stepSizeSelectionBits = new int[]{1,0,1};
+                stepSizeSelectionBits = new int[]{1,1,1};
                 break;
             default:
                 stepSizeSelectionBits = new int[]{0,0,0};
