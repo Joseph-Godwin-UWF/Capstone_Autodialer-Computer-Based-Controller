@@ -15,9 +15,9 @@ public class Test {
         Test t = new Test();
 
         Dialer dialer = new Dialer(3, 360);
-        dialer.setCurrentCombination(new int[]{40, 98, 54});
+        dialer.setCurrentCombination(new int[]{40, 98, 93});
 
-        for(int i = 0; i < 200; i++){
+        for(int i = 0; i < 215; i++){
             dialer.getNextCombination();
             System.out.println(dialer.ToString());
         }

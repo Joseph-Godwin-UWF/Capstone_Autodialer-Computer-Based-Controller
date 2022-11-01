@@ -4,6 +4,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,6 +32,8 @@ public class AutoDialerGUIController {
     StopThread dialThread;
     int stepSizeMultiplier = 1;
     int stepSizeSelectionBits[] = new int[]{0, 0, 0};
+    boolean TorqueDataWroteToFile = false;
+    ArrayList<Integer> torqueReadings = new ArrayList<Integer>();
 
     @FXML
     public void initialize(){
@@ -79,7 +85,7 @@ public class AutoDialerGUIController {
         }
         //messenger.sendMessage("SetUpStepper:1.8;200;400");
         messenger.sendMessage("TurnDial:0");/*remove?*/
-        dialer.setCurrentCombination(new int[]{40, 0, 90}); //FIXME: CHANGE THIS TO COMBO SET IN GUI
+        dialer.setCurrentCombination(new int[]{39, 2, 23}); //FIXME: CHANGE THIS TO COMBO SET IN GUI
         dialThread = new StopThread();
         dialThread.start();
         startDialingButton.setDisable(true);
@@ -104,7 +110,7 @@ public class AutoDialerGUIController {
         comboParser = new ComboParser(dialer);
         comboParser.setStepSizeMultiplier(stepSizeMultiplier);
         //FIXME: SHOULD PROBABLY SET IN GUI
-        messenger.sendMessage("SetUpStepper:1.8;100;100");
+        messenger.sendMessage("SetUpStepper:1.8;150;150");
         String stepBits = getStepSizeSelectionBits();
         messenger.sendMessage("SetStepBits:" + stepBits);
     }
@@ -212,7 +218,22 @@ public class AutoDialerGUIController {
                             // -combination likely found
                             // -task complete
                             // display the correct combo
-                            System.out.println("COMBO FOUND");
+                            if(!TorqueDataWroteToFile){
+                                TorqueDataWroteToFile = true;
+                                System.out.println("COMBO FOUND");
+                                try {
+                                    printTorqueDataToFile();
+                                 } catch (IOException e) {
+                                   throw new RuntimeException(e);
+                                }
+                            }
+                            break;
+                        case "003":
+                            //FIXME: ADD TORQUE DATA TO ARRAYLIST
+                            int index = message.indexOf('>');
+                            String data = message.substring(index + 1).trim();
+                            System.out.println("Adding to torqueData: " + data);
+                            torqueReadings.add(Integer.parseInt(data));
                             break;
                         case "600":
                             //FIXME: invalid message
@@ -228,6 +249,40 @@ public class AutoDialerGUIController {
             }
             System.out.println("Thread Stopped.... ");
         }
+    }
+
+    public void printTorqueDataToFile() throws IOException {
+        try{
+            // Create new file
+            String path="C:\\TorqueData";
+            File file = getUniqueFileName(path, "torqueReadings.txt");
+            FileWriter fw = new FileWriter(file.getAbsoluteFile());
+            BufferedWriter bw = new BufferedWriter(fw);
+
+            for(Integer reading : torqueReadings) {
+                bw.write(Integer.toString(reading));
+                bw.write(";");
+            }
+
+
+            // Close connection
+            bw.close();
+        }
+        catch(Exception e){
+            System.out.println(e);
+        }
+    }
+
+    private File getUniqueFileName(String folderName, String searchedFilename) {
+        int num = 1;
+        String extension = ".txt";
+        String filename = searchedFilename.substring(0, searchedFilename.lastIndexOf("."));
+        File file = new File(folderName, searchedFilename);
+        while (file.exists()) {
+            searchedFilename = filename + "("+(num++)+")"+extension;
+            file = new File(folderName, searchedFilename);
+        }
+        return file;
     }
 
 }

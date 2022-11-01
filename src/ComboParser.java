@@ -74,7 +74,7 @@ public class ComboParser {
                         //keep index at 0;
                     }
                     else{
-                        degreesToTurn -= 360 * 4; // 3 FULL ROTATIONS
+                        degreesToTurn -= 360 * 3; // 3 FULL ROTATIONS
                         degreesToTurn -= 360 - currPosInDegrees; // back to 0
                         degreesToTurn -= getDegreesFromNumber(combo[0]);
                         System.out.println("Reset deg: " + degreesToTurn);
@@ -83,7 +83,7 @@ public class ComboParser {
                     break;
                 case 1:
                     System.out.println("Rotating second index");
-                    degreesToTurn += 360 * 2; // 2 full rotations
+                    degreesToTurn += 360; // 2 full rotations
                     if(combo[0] > combo[1] ){
                         degreesToTurn += getDegreesFromNumber(combo[0] - combo[1]);
                     }

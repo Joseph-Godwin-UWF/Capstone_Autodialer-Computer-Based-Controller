@@ -4,8 +4,7 @@ public class Dialer {
     int tickCount;
     /** {@code @combination} an array storing the current combination */
     int[] combination;
-    boolean doubleLastDigitComboSent = false;
-    boolean doubleLastDigitDifferByDeltaSent = false;
+    boolean resetDial = false;
 
     public Dialer(int comboSize, int tickCount){
         this.tickCount = tickCount;
@@ -22,28 +21,24 @@ public class Dialer {
      */
     public int[] getNextCombination(int delta){
         int lastIndex = combination.length - 1;
-        if(combination[lastIndex] == combination[lastIndex - 1] && !doubleLastDigitComboSent){
-            doubleLastDigitComboSent = true;
-            return combination;
-        }
-        if(combination[lastIndex] == combination[lastIndex - 1] - delta && !doubleLastDigitDifferByDeltaSent){
-            doubleLastDigitDifferByDeltaSent = true;
-            return combination;
-        }
-        combination[lastIndex] += delta;
-        if(combination[lastIndex] >= 100){
-            combination[lastIndex] -= 100;
-        }
 
-        if(doubleLastDigitComboSent && doubleLastDigitDifferByDeltaSent){
-            doubleLastDigitComboSent = false;
-            doubleLastDigitDifferByDeltaSent = false;
+        if(combination[lastIndex] >= combination[lastIndex - 1] - delta && combination[lastIndex] < combination[lastIndex - 1]
+           || combination[lastIndex] >= 100 - delta && combination[lastIndex - 1] <= delta){
             combination[lastIndex - 1] += delta;
             if(combination[lastIndex - 1] >= 100){
                 combination[lastIndex - 1] -= 100;
                 combination[lastIndex - 2] += delta;
+                if(combination[lastIndex - 2] >= 100){
+                    combination[lastIndex - 2] -= 100;
+                }
             }
             combination[lastIndex] = combination[lastIndex - 1];
+        }
+        else{
+            combination[lastIndex] += delta;
+            if(combination[lastIndex] >= 100){
+                combination[lastIndex] -= 100;
+            }
         }
         return combination;
     }
