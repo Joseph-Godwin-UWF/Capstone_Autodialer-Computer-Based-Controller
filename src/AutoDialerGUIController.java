@@ -85,7 +85,7 @@ public class AutoDialerGUIController {
         }
         //messenger.sendMessage("SetUpStepper:1.8;200;400");
         messenger.sendMessage("TurnDial:0");/*remove?*/
-        dialer.setCurrentCombination(new int[]{39, 2, 23}); //FIXME: CHANGE THIS TO COMBO SET IN GUI
+        dialer.setCurrentCombination(new int[]{39, 0, 98}); //FIXME: CHANGE THIS TO COMBO SET IN GUI
         dialThread = new StopThread();
         dialThread.start();
         startDialingButton.setDisable(true);
@@ -110,7 +110,7 @@ public class AutoDialerGUIController {
         comboParser = new ComboParser(dialer);
         comboParser.setStepSizeMultiplier(stepSizeMultiplier);
         //FIXME: SHOULD PROBABLY SET IN GUI
-        messenger.sendMessage("SetUpStepper:1.8;150;150");
+        messenger.sendMessage("SetUpStepper:1.8;200;200");//FIXME ..........................................
         String stepBits = getStepSizeSelectionBits();
         messenger.sendMessage("SetStepBits:" + stepBits);
     }

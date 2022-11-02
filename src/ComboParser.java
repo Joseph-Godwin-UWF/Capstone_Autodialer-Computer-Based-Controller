@@ -60,7 +60,7 @@ public class ComboParser {
             this.index = 0;
             tryToOpen = false;
             prevCombo = this.combo.clone();
-            this.combo = dialer.getNextCombination(1);
+            this.combo = dialer.getNextCombination(1); //FIXME ....................................................
         }
         else {
             switch (index) {
@@ -83,7 +83,7 @@ public class ComboParser {
                     break;
                 case 1:
                     System.out.println("Rotating second index");
-                    degreesToTurn += 360; // 2 full rotations
+                    degreesToTurn += 360 * 2; // 2 full rotations
                     if(combo[0] > combo[1] ){
                         degreesToTurn += getDegreesFromNumber(combo[0] - combo[1]);
                     }
@@ -96,7 +96,8 @@ public class ComboParser {
                     System.out.println("Rotating third index");
                     degreesToTurn -= 360;
                     if(combo[1] >= combo[2]){
-                        degreesToTurn -= 360 - getDegreesFromNumber(combo[1] - combo[2]);
+                        if(! (combo[1] == combo[2])  )
+                            degreesToTurn -= 360 - getDegreesFromNumber(combo[1] - combo[2]);
                     }
                     else{
                         degreesToTurn -= getDegreesFromNumber(combo[2] - combo[1]);
