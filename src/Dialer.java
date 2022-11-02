@@ -1,54 +1,108 @@
+/**
+ * This class is used for generating Brute-Force combinations
+ * used to dail a safe with the following restrictions:
+ *  - The Safe dail ranges from (0, 99]
+ *  - The Safe uses a 3-number combo (XX, XX, XX)
+ *
+ * @Author Joseph Godwin
+ * @Date November 2nd, 2021
+ */
+
 public class Dialer {
 
-    /**  {@code @tickCount}   the number of ticks on the dial */
-    int tickCount;
-    /** {@code @combination} an array storing the current combination */
+    /** Stores the current combination */
     int[] combination;
-    boolean resetDial = false;
 
-    public Dialer(int comboSize, int tickCount){
-        this.tickCount = tickCount;
-        combination = new int[comboSize];
+
+    /*******************************************************************
+     ** CONSTRUCTORS **
+     *******************************************************************/
+
+    /** Default constructor
+     ** Sets initial combo to 0-0-0 */
+    public Dialer(){
+        combination = new int[]{0,0,0};
+    }
+    /** Parameterized constructor
+     ** @param startingCombo starting point for Brute-Force Algorithm */
+    public Dialer(int[] startingCombo){
+        combination = startingCombo;
     }
 
+
+    /*******************************************************************
+     **  ACCESSORS **
+     *******************************************************************/
+
+    public int[] getCurrentCombination(){
+        return this.combination;
+    }
+
+    public int getTickCount() {
+        return 100;
+    }
+
+
+    /*******************************************************************
+     **  MUTATORS **
+     *******************************************************************/
+
+    public void setCurrentCombination(int[] combo){
+        this.combination = combo;
+    }
+
+
+    /*******************************************************************
+     **  METHODS **
+     *******************************************************************/
+
+    /**
+     * Calls getNextCombination(2)
+     * @return the next Brute-Force combination
+     * using a default of delta = 2
+     */
     public int[] getNextCombination(){
         return getNextCombination(2);
     }
 
     /**
+     * Calls ToString("-"),
+     * @return String representation of
+     * combination with "XX-XX-XX"
+     */
+    public String ToString(){
+        return ToString("-");
+    }
+
+    /**
      * @param delta how many ticks to skip for the next combination
-     * @return returns the next brute-force combination to try
+     * @return returns the next brute-force combination using the specified delta
      */
     public int[] getNextCombination(int delta){
-        int lastIndex = combination.length - 1;
-
-        if(combination[lastIndex] >= combination[lastIndex - 1] - delta && combination[lastIndex] < combination[lastIndex - 1]
-           || combination[lastIndex] >= 100 - delta && combination[lastIndex - 1] <= delta){
-            combination[lastIndex - 1] += delta;
-            if(combination[lastIndex - 1] >= 100){
-                combination[lastIndex - 1] -= 100;
-                combination[lastIndex - 2] += delta;
-                if(combination[lastIndex - 2] >= 100){
-                    combination[lastIndex - 2] -= 100;
+        int c1 = 0;
+        int c2 = 1;
+        int c3 = 2;
+        if(combination[c3] >= combination[c2] - delta && combination[c3] < combination[c2]
+           || combination[c3] >= 100 - delta && combination[c2] <= delta){
+            combination[c2] += delta;
+            if(combination[c2] >= 100){
+                combination[c2] -= 100;
+                combination[c1] += delta;
+                if(combination[c1] >= 100){
+                    combination[c1] -= 100;
                 }
             }
-            combination[lastIndex] = combination[lastIndex - 1];
+            combination[c3] = combination[c2];
         }
         else{
-            combination[lastIndex] += delta;
-            if(combination[lastIndex] >= 100){
-                combination[lastIndex] -= 100;
+            combination[c3] += delta;
+            if(combination[c3] >= 100){
+                combination[c3] -= 100;
             }
         }
-        return combination;
+    return combination;
     }
 
-    public int[] getCurrentCombination(){ return this.combination; }
-    public int getTickCount() { return this.tickCount; }
-
-    public void setCurrentCombination(int[] combo){
-        this.combination = combo;
-    }
 
     public String ToString(String delimiter){
         String stringCombo = "";
@@ -59,9 +113,7 @@ public class Dialer {
         }
         return stringCombo;
     }
-    public String ToString(){
-        return ToString("-");
-    }
+
 }
 
 
