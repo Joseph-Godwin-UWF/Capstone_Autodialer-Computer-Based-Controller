@@ -1,15 +1,9 @@
 public class ComboParser {
-    public static final int COMBO_FINISHED = -999;
     public static boolean FirstComboDialed = false;
     public static final int POLARITY = -1;
     public static final int NO_PREVIOUS_COMBO = -998;
-    public static final int COUNTER_CLOCKWISE = -1;
-    public static final int CLOCKWISE = 1;
-    public static final int DEGREES_TO_UNLOCK = 300; //FIXME: this will need to be fine-tuned
     public static final int UNLOCK_INDEX = 80;
     private final double degreesPerTick;
-
-    private final int size;
     private final Dialer dialer;
 
     private int[] combo;
@@ -24,7 +18,6 @@ public class ComboParser {
         this.dialer = dialer;
         this.combo = dialer.getNextCombination();
         this.index = 0;
-        this.size = combo.length;
         this.degreesPerTick = 360.0 / dialer.getTickCount();
         this.currPosInDegrees = 0;
         this.tryToOpen = false;
@@ -35,14 +28,6 @@ public class ComboParser {
         this(dialer);
         this.combo = startingCombo;
         dialer.setCurrentCombination(startingCombo);
-    }
-
-    //
-    public int getNextNumber(){
-        if(this.index < this.size){
-            return this.combo[index++];
-        }
-        return COMBO_FINISHED;
     }
 
     public String getNextRotationCommand(){
@@ -121,7 +106,7 @@ public class ComboParser {
     }
 
     private boolean previousComboOnlyDiffersByLastNumber(){
-        if(prevCombo[0] == NO_PREVIOUS_COMBO)
+        if(prevCombo[0] == NO_PREVIOUS_COMBO) //FIXME: faulty logic? never true?
             return true;
 
         for(int i = 0; i < this.combo.length - 1; i++){
@@ -140,7 +125,7 @@ public class ComboParser {
     }
 
     String getComboAsString(){
-        return Integer.toString(combo[0]) + "-" + Integer.toString(combo[1]) + "-" + Integer.toString(combo[2]);
+        return combo[0] + "-" + combo[1] + "-" + combo[2];
     }
 
     int getEquivalentAngle(int angle){

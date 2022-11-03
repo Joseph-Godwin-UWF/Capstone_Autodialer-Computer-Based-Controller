@@ -14,7 +14,7 @@ public class Test {
     public static void main(String[] args) throws InterruptedException {
         Test t = new Test();
 
-        Dialer dialer = new Dialer(3, 360);
+        Dialer dialer = new Dialer();
         dialer.setCurrentCombination(new int[]{40, 98, 93});
 
         for(int i = 0; i < 215; i++){
