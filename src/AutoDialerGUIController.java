@@ -14,6 +14,7 @@ import java.util.List;
 
 
 public class AutoDialerGUIController {
+
     @FXML private ComboBox<String> comPortComboBox;
     @FXML private ComboBox<String> stepSizeComboBox;
     @FXML TextField comboSizeTextField;
@@ -25,13 +26,15 @@ public class AutoDialerGUIController {
     @FXML Button stopDialingButton;
 
     SerialPort[] coms;
-    SerialPort arduinoPort = null;
+    SerialPort microControllerSerialPort = null;
     SerialMessenger messenger;
+
     Dialer dialer;
+    int microStepMultiplier = 1;
+    int[] stepSizeSelectionBits = new int[]{0, 0, 0};
     ComboParser comboParser;
     StopThread dialThread;
-    int stepSizeMultiplier = 1;
-    int stepSizeSelectionBits[] = new int[]{0, 0, 0};
+
     boolean TorqueDataWroteToFile = false;
     ArrayList<Integer> torqueReadings = new ArrayList<Integer>();
 
@@ -45,26 +48,33 @@ public class AutoDialerGUIController {
         stopDialingButton.setDisable(true);
     }
 
+    /** Refreshes the Serial Port dropdown box */
     public void refreshButtonClicked(){
         comPortComboBox.getItems().clear();
         updatePortSelectionComboBox();
 
     }
+
+    /** Opens the selected SerialPort
+     *  If no SerialPort is selected
+     *  prints error message and returns*/
     public void openComPortButtonClicked(){
         int portIndex = comPortComboBox.getSelectionModel().getSelectedIndex();
-        if(portIndex != -1) { // if an item is selected
-
-            arduinoPort = coms[portIndex];
-            messenger = new SerialMessenger(arduinoPort);
+        // If a port is selected, open it
+        if(portIndex != -1) {
+            microControllerSerialPort = coms[portIndex];
+            messenger = new SerialMessenger(microControllerSerialPort);
             openPortButton.setDisable(true);
             closePortButton.setDisable(false);
         }
         else {
             System.out.println("Please select a port");
-            return;
         }
 
     }
+
+    /** Closes SerialPort
+     * If still dialing, calls stopDialingButtonPressed() */
     public void closeComPortButtonClicked(){
         if(this.dialThread != null)
             stopDialingButtonPressed();
@@ -78,49 +88,41 @@ public class AutoDialerGUIController {
             System.out.println("Port is not open");
             return;
         }
-        if(dialer == null){
-            int comboSize = (comboSizeTextField.getText().isBlank()) ? 3 : Integer.parseInt(comboSizeTextField.getText());
-            int tickCount = (tickCountTextField.getText().isBlank()) ? 100 : Integer.parseInt(tickCountTextField.getText());
-            dialer = new Dialer(comboSize, tickCount);
-        }
-        //messenger.sendMessage("SetUpStepper:1.8;200;400");
+
+        dialer = new Dialer(new int[]{39, 0, 98});
+        comboParser = new ComboParser(dialer);
+        comboParser.setStepSizeMultiplier(microStepMultiplier);
+
+        //FIXME: SHOULD PROBABLY SET IN GUI
+        messenger.sendMessage("SetUpStepper:1.8;200;200");//FIXME ..........................................
         messenger.sendMessage("TurnDial:0");/*remove?*/
-        dialer.setCurrentCombination(new int[]{39, 0, 98}); //FIXME: CHANGE THIS TO COMBO SET IN GUI
         dialThread = new StopThread();
         dialThread.start();
         startDialingButton.setDisable(true);
         stopDialingButton.setDisable(false);
     }
 
+    /** Stops the dialer thread and updates current combination */
     public void stopDialingButtonPressed(){
         dialer.setCurrentCombination(dialThread.stopThread());
         startDialingButton.setDisable(false);
         stopDialingButton.setDisable(true);
     }
 
+    /** Sends command for setting microStep bits
+     *  based on the selected step resolution */
     public void setDialButtonPressed(){
-        if(comboSizeTextField.getText().isBlank() || tickCountTextField.getText().isBlank()){
-            System.out.println("Dialer Variable entree left blank");
-            return;
-        }
-        setStepSizeMultiplier();
-        int comboSize = Integer.parseInt(comboSizeTextField.getText());
-        int dialTicks = Integer.parseInt(tickCountTextField.getText());
-        dialer = new Dialer(comboSize, dialTicks);
-        comboParser = new ComboParser(dialer);
-        comboParser.setStepSizeMultiplier(stepSizeMultiplier);
-        //FIXME: SHOULD PROBABLY SET IN GUI
-        messenger.sendMessage("SetUpStepper:1.8;200;200");//FIXME ..........................................
+        setMicroStepMultiplier(); //Sets microStepping bits
         String stepBits = getStepSizeSelectionBits();
         messenger.sendMessage("SetStepBits:" + stepBits);
     }
 
     private String getStepSizeSelectionBits(){
-        String bits = "";
+        StringBuilder bits = new StringBuilder();
         for(int bit : stepSizeSelectionBits){
-            bits += Integer.toString(bit);
+            bits.append(Integer.toString(bit));
         }
-        return bits;
+        return bits.toString();
     } //FIXME: VERIFY THIS WORKS
 
     private void updatePortSelectionComboBox(){
@@ -137,22 +139,22 @@ public class AutoDialerGUIController {
         stepSizeComboBox.getItems().addAll(stepSizes);
     }
 
-    private void setStepSizeMultiplier(){
+    private void setMicroStepMultiplier(){
         //check if stepSizeComboBox is empty
         if(stepSizeComboBox.getSelectionModel().isEmpty()){
-            stepSizeMultiplier = 1; //DEFAULT TO FULL STEP
+            microStepMultiplier = 1; //DEFAULT TO FULL STEP
             setStepSizeSelectionBits();
             return;
         }
         String stepSizeFromComboBox = stepSizeComboBox.getSelectionModel().getSelectedItem();
         String stepSizeDenominator = stepSizeFromComboBox.substring(stepSizeFromComboBox.indexOf('/') + 1);
-        stepSizeMultiplier = Integer.parseInt(stepSizeDenominator);
+        microStepMultiplier = Integer.parseInt(stepSizeDenominator);
         setStepSizeSelectionBits();
     }
 
     private void setStepSizeSelectionBits(){
         //FIXME: 1/2 and 1/4 probably swapped, no testing done yet
-        switch (stepSizeMultiplier){
+        switch (microStepMultiplier){
             case 2:
                 stepSizeSelectionBits = new int[]{1,0,0};
                 break;
