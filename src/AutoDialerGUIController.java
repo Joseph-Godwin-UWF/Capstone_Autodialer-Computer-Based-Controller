@@ -93,7 +93,8 @@ public class AutoDialerGUIController {
             return;
         }
 
-        dialer = new Dialer(new int[]{39, 0, 98}); //FIXME: change param to combo in startingComboTextBox
+        dialer = new Dialer(getStartingCombination());
+        System.out.println("Starting Combo: " + dialer.ToString());
         comboParser = new ComboParser(dialer);
         comboParser.setStepSizeMultiplier(microStepMultiplier);
 
@@ -195,8 +196,18 @@ public class AutoDialerGUIController {
                 field.setText(field.getText().substring(0, MAX_DIGITS));
             }
         });
+    }
 
-
+    private int[] getStartingCombination(){
+        boolean c1Populated = !combo1.getText().isEmpty();
+        boolean c2Populated = !combo2.getText().isEmpty();
+        boolean c3Populated = !combo3.getText().isEmpty();
+        if(c1Populated && c2Populated && c3Populated){
+            return new int[]{ Integer.parseInt(combo1.getText()),
+                              Integer.parseInt(combo2.getText()),
+                              Integer.parseInt(combo3.getText())  };
+        }
+        return new int[] { 0 ,0 ,0 };
     }
 
     class StopThread extends Thread {
