@@ -17,13 +17,15 @@ public class AutoDialerGUIController {
 
     @FXML private ComboBox<String> comPortComboBox;
     @FXML private ComboBox<String> stepSizeComboBox;
-    @FXML TextField comboSizeTextField;
-    @FXML TextField tickCountTextField;
     @FXML TextField combinationTextBox;
     @FXML Button closePortButton;
     @FXML Button openPortButton;
     @FXML Button startDialingButton;
     @FXML Button stopDialingButton;
+    @FXML TextField combo1;
+    @FXML TextField combo2;
+    @FXML TextField combo3;
+    @FXML TextField backlashTextBox;
 
     SerialPort[] coms;
     SerialPort microControllerSerialPort = null;
@@ -42,8 +44,10 @@ public class AutoDialerGUIController {
     public void initialize(){
         updatePortSelectionComboBox();
         populateStepSizeSelectionComboBox();
-        numericValuesOnly(comboSizeTextField);
-        numericValuesOnly(tickCountTextField);
+        numericValuesLessThan100Only(combo1);
+        numericValuesLessThan100Only(combo2);
+        numericValuesLessThan100Only(combo3);
+        numericValuesLessThan100Only(backlashTextBox);
         closePortButton.setDisable(true);
         stopDialingButton.setDisable(true);
     }
@@ -89,7 +93,7 @@ public class AutoDialerGUIController {
             return;
         }
 
-        dialer = new Dialer(new int[]{39, 0, 98});
+        dialer = new Dialer(new int[]{39, 0, 98}); //FIXME: change param to combo in startingComboTextBox
         comboParser = new ComboParser(dialer);
         comboParser.setStepSizeMultiplier(microStepMultiplier);
 
@@ -109,6 +113,7 @@ public class AutoDialerGUIController {
         stopDialingButton.setDisable(true);
     }
 
+    //FIXME: THIS BUTTON NO LONGER EXISTS
     /** Sends command for setting microStep bits
      *  based on the selected step resolution */
     public void setDialButtonPressed(){
@@ -174,12 +179,24 @@ public class AutoDialerGUIController {
     }
 
 
-    public static void numericValuesOnly(final TextField field) {
+    public static void numericValuesLessThan100Only(final TextField field) {
+
+        // NUMERIC VALUES ONLY
         field.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.matches("\\d*")) {
                 field.setText(newValue.replaceAll("[^\\d]", ""));
             }
         });
+
+        // 2 DIGITS MAX (0,99]
+        int MAX_DIGITS = 2;
+        field.textProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue.length() > MAX_DIGITS){
+                field.setText(field.getText().substring(0, MAX_DIGITS));
+            }
+        });
+
+
     }
 
     class StopThread extends Thread {

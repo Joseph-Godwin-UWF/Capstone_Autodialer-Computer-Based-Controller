@@ -9,17 +9,18 @@ public class ComboParser {
     private int[] combo;
     private int[] prevCombo = {0, 0, 0};
     private int index;
-    private int currPosInDegrees;
+    private int currPosition;
     private boolean tryToOpen;
     private boolean firstRun;
     private int stepSizeMultiplier = 1;
+    private int delta = 1;
 
     ComboParser(Dialer dialer){
         this.dialer = dialer;
-        this.combo = dialer.getNextCombination();
+        this.combo = dialer.getCurrentCombination();
         this.index = 0;
         this.degreesPerTick = 360.0 / dialer.getTickCount();
-        this.currPosInDegrees = 0;
+        this.currPosition = 0;
         this.tryToOpen = false;
         this.firstRun = true;
     }
@@ -36,56 +37,54 @@ public class ComboParser {
             firstRun = false;
         }
         String command = "TurnDial:";
-        int degreesToTurn = 0;
+        int ticksToTurn = 0;
 
         if(tryToOpen){
-            System.out.println("Trying to open");
-            degreesToTurn += getDegreesFromNumber(combo[2]); //BACK TO 0
-            degreesToTurn += getDegreesFromNumber(100 - UNLOCK_INDEX);
+            //System.out.println("Trying to open");
+            ticksToTurn += combo[2]; //BACK TO 0
+            ticksToTurn += 100 - UNLOCK_INDEX;
             this.index = 0;
             tryToOpen = false;
             prevCombo = this.combo.clone();
-            this.combo = dialer.getNextCombination(1); //FIXME ....................................................
+            this.combo = dialer.getNextCombination(delta);
         }
         else {
             switch (index) {
                 case 0:
-                    System.out.println("Rotating first index");
+                    //System.out.println("Rotating first index");
                     if (previousComboOnlyDiffersByLastNumber() && FirstComboDialed) {
-                        System.out.println("prevonlydiff");
-                        degreesToTurn -= getDegreesFromNumber(100- UNLOCK_INDEX); //back to 0
-                        degreesToTurn -= getDegreesFromNumber(combo[2]);
+                        ticksToTurn -= 100- UNLOCK_INDEX; //back to 0
+                        ticksToTurn -= combo[2];
                         tryToOpen = true;
                         //keep index at 0;
                     }
                     else{
-                        degreesToTurn -= 360 * 3; // 3 FULL ROTATIONS
-                        degreesToTurn -= 360 - currPosInDegrees; // back to 0
-                        degreesToTurn -= getDegreesFromNumber(combo[0]);
-                        System.out.println("Reset deg: " + degreesToTurn);
+                        ticksToTurn -= 100 * 3; // 3 FULL ROTATIONS
+                        ticksToTurn -= 100 - currPosition; // back to 0
+                        ticksToTurn -= combo[0];
                         this.index = 1;
                     }
                     break;
                 case 1:
-                    System.out.println("Rotating second index");
-                    degreesToTurn += 360 * 2; // 2 full rotations
+                    //System.out.println("Rotating second index");
+                    ticksToTurn += 100 * 2; // 2 full rotations
                     if(combo[0] > combo[1] ){
-                        degreesToTurn += getDegreesFromNumber(combo[0] - combo[1]);
+                        ticksToTurn += combo[0] - combo[1];
                     }
                     else{
-                        degreesToTurn += 360 - getDegreesFromNumber(combo[1] - combo[0]);
+                        ticksToTurn += 100 - combo[1] - combo[0];
                     }
                     this.index = 2;
                     break;
                 case 2:
-                    System.out.println("Rotating third index");
-                    degreesToTurn -= 360;
+                    //System.out.println("Rotating third index");
+                    ticksToTurn -= 100;
                     if(combo[1] >= combo[2]){
                         if(! (combo[1] == combo[2])  )
-                            degreesToTurn -= 360 - getDegreesFromNumber(combo[1] - combo[2]);
+                            ticksToTurn -= 100 - combo[1] - combo[2];
                     }
                     else{
-                        degreesToTurn -= getDegreesFromNumber(combo[2] - combo[1]);
+                        ticksToTurn -= combo[2] - combo[1];
                     }
                     FirstComboDialed = true;
                     tryToOpen = true;
@@ -96,12 +95,11 @@ public class ComboParser {
                     break;
             }
         }
-        degreesToTurn *= POLARITY;
-        System.out.println("Combo being turned: " + dialer.ToString());
-        currPosInDegrees += degreesToTurn;
-        currPosInDegrees = getEquivalentAngle(currPosInDegrees);
-        command += Integer.toString(degreesToTurn * stepSizeMultiplier);
-        System.out.println(command);
+        ticksToTurn *= POLARITY;
+        //System.out.println("Combo being turned: " + dialer.ToString());
+        currPosition += ticksToTurn;
+        currPosition = getCorrespondingDialNumber(currPosition);
+        command += Integer.toString(ticksToTurn * stepSizeMultiplier);
         return command;
     }
 
@@ -128,15 +126,15 @@ public class ComboParser {
         return combo[0] + "-" + combo[1] + "-" + combo[2];
     }
 
-    int getEquivalentAngle(int angle){
+    int getCorrespondingDialNumber(int angle){
         if(angle < 0) {
             while(angle < 0){
-                angle += 360;
+                angle += 100;
             }
         }
         else{
-            while(angle > 360){
-                angle -= 360;
+            while(angle > 100){
+                angle -= 100;
             }
         }
         return angle;

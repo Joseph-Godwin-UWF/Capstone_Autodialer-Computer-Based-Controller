@@ -15,11 +15,12 @@ public class Test {
         Test t = new Test();
 
         Dialer dialer = new Dialer();
-        dialer.setCurrentCombination(new int[]{40, 98, 93});
+        dialer.setCurrentCombination(new int[]{0, 0, 0});
+        ComboParser parser = new ComboParser(dialer);
 
-        for(int i = 0; i < 215; i++){
-            dialer.getNextCombination();
-            System.out.println(dialer.ToString());
+        System.out.println("Starting Combo: " + dialer.ToString());
+        for(int i = 0; i < 15; i++){
+            System.out.println(parser.getNextRotationCommand());
         }
 
 
