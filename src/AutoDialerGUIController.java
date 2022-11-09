@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 
 public class AutoDialerGUIController {
@@ -57,11 +58,22 @@ public class AutoDialerGUIController {
     }
 
     public void setStepResolutionButtonPressed(){
-        //FIXME
+        String header = "001:";
+        setMicroStepMultiplier();
+        String stepBits = getStepSizeSelectionBits();
+        messenger.sendMessage(header + stepBits);
     }
 
     public void setDialingSpeedButtonPressed(){
-        //FIXME
+        String header = "002:";
+        int dialingSpeed;
+        if(dialingSpeedTextBox.getText().isEmpty()){
+            dialingSpeed = 200;
+        }
+        else{
+            dialingSpeed = Integer.parseInt(dialingSpeedTextBox.getText());
+        }
+        messenger.sendMessage(header + dialingSpeed);
     }
 
     /** Refreshes the Serial Port dropdown box */
@@ -76,17 +88,27 @@ public class AutoDialerGUIController {
      *  prints error message and returns*/
     public void openComPortButtonClicked(){
         int portIndex = comPortComboBox.getSelectionModel().getSelectedIndex();
-        // If a port is selected, open it
-        if(portIndex != -1) {
-            microControllerSerialPort = coms[portIndex];
-            messenger = new SerialMessenger(microControllerSerialPort);
-            openPortButton.setDisable(true);
-            closePortButton.setDisable(false);
-        }
-        else {
+
+        /* CHECKS IF A PORT IS SELECTED */
+        if(portIndex == -1) {
             System.out.println("Please select a port");
+            return;
         }
 
+        microControllerSerialPort = coms[portIndex];
+        messenger = new SerialMessenger(microControllerSerialPort);
+        openPortButton.setDisable(true);
+        closePortButton.setDisable(false);
+
+
+        /* VERIFY PROPER COMMUNICATION WITH ESP32 */
+        String code;
+        do{
+            messenger.sendMessage("000:");
+            wait(500);
+            code = messenger.getMessageCodeNumber(messenger.getNextMessage());
+        }while(code == null || !code.equals("000"));
+        //FIXME: CLEAR MESSENGER BUFFER
     }
 
     /** Closes SerialPort
@@ -109,9 +131,6 @@ public class AutoDialerGUIController {
         comboParser = new ComboParser(dialer);
         comboParser.setStepSizeMultiplier(microStepMultiplier);
 
-        //FIXME: SHOULD PROBABLY SET IN GUI
-        messenger.sendMessage("SetUpStepper:1.8;200;200");//FIXME ..........................................
-        messenger.sendMessage("TurnDial:0");/*remove?*/
         dialThread = new StopThread();
         dialThread.start();
         startDialingButton.setDisable(true);
@@ -123,15 +142,6 @@ public class AutoDialerGUIController {
         dialer.setCurrentCombination(dialThread.stopThread());
         startDialingButton.setDisable(false);
         stopDialingButton.setDisable(true);
-    }
-
-    //FIXME: THIS BUTTON NO LONGER EXISTS
-    /** Sends command for setting microStep bits
-     *  based on the selected step resolution */
-    public void setDialButtonPressed(){
-        setMicroStepMultiplier(); //Sets microStepping bits
-        String stepBits = getStepSizeSelectionBits();
-        messenger.sendMessage("SetStepBits:" + stepBits);
     }
 
     private String getStepSizeSelectionBits(){
@@ -268,6 +278,7 @@ public class AutoDialerGUIController {
                             //what needs to be done on software side?
                             //-allow "start dialing"
                             System.out.println("ARDUINO READY TO ACCEPT TURN COMMANDS");
+                            break;
                         case "001":
                             messenger.sendMessage(comboParser.getNextRotationCommand());
                             combinationTextBox.setText("Dialing: " + comboParser.getComboAsString());
@@ -343,5 +354,18 @@ public class AutoDialerGUIController {
         }
         return file;
     }
+
+    public static void wait(int ms)
+    {
+        try
+        {
+            Thread.sleep(ms);
+        }
+        catch(InterruptedException ex)
+        {
+            Thread.currentThread().interrupt();
+        }
+    }
+
 
 }

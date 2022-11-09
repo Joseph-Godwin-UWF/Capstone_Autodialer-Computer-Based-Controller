@@ -64,15 +64,14 @@ public class SerialMessenger implements SerialPortMessageListener {
     }
 
     String getMessageCodeNumber(String message){
-        //System.out.println("getMessageCodeNumber:" + message);
         if(message == null)
             return null;
-        message = message.trim(); //removes leading and trailing whitespace
-        int index = message.indexOf('-');
+        message = message.trim();
+        int index = message.indexOf(':');
 
-        if (index <= -1) //message is only one word //FIXME: changed this to <=
+        if (index <= -1)
             return message;
-        return message.substring(0, index).trim(); //returns the first word without whitespace
+        return message.substring(0, index).trim();
     }
 
     public void sendMessage(String message){
