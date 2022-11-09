@@ -22,10 +22,13 @@ public class AutoDialerGUIController {
     @FXML Button openPortButton;
     @FXML Button startDialingButton;
     @FXML Button stopDialingButton;
+    @FXML Button setStepResolution;
+    @FXML Button setDialingSpeedButton;
     @FXML TextField combo1;
     @FXML TextField combo2;
     @FXML TextField combo3;
     @FXML TextField backlashTextBox;
+    @FXML TextField dialingSpeedTextBox;
 
     SerialPort[] coms;
     SerialPort microControllerSerialPort = null;
@@ -44,12 +47,21 @@ public class AutoDialerGUIController {
     public void initialize(){
         updatePortSelectionComboBox();
         populateStepSizeSelectionComboBox();
-        numericValuesLessThan100Only(combo1);
-        numericValuesLessThan100Only(combo2);
-        numericValuesLessThan100Only(combo3);
-        numericValuesLessThan100Only(backlashTextBox);
+        numericValuesLessThanOneHundredOnly(combo1);
+        numericValuesLessThanOneHundredOnly(combo2);
+        numericValuesLessThanOneHundredOnly(combo3);
+        numericValuesLessThanOneThousandOnly(dialingSpeedTextBox);
+        numericValuesLessThanOneHundredOnly(backlashTextBox);
         closePortButton.setDisable(true);
         stopDialingButton.setDisable(true);
+    }
+
+    public void setStepResolutionButtonPressed(){
+        //FIXME
+    }
+
+    public void setDialingSpeedButtonPressed(){
+        //FIXME
     }
 
     /** Refreshes the Serial Port dropdown box */
@@ -94,7 +106,6 @@ public class AutoDialerGUIController {
         }
 
         dialer = new Dialer(getStartingCombination());
-        System.out.println("Starting Combo: " + dialer.ToString());
         comboParser = new ComboParser(dialer);
         comboParser.setStepSizeMultiplier(microStepMultiplier);
 
@@ -180,7 +191,7 @@ public class AutoDialerGUIController {
     }
 
 
-    public static void numericValuesLessThan100Only(final TextField field) {
+    public static void numericValuesLessThanOneHundredOnly(final TextField field) {
 
         // NUMERIC VALUES ONLY
         field.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -193,6 +204,24 @@ public class AutoDialerGUIController {
         int MAX_DIGITS = 2;
         field.textProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue.length() > MAX_DIGITS){
+                field.setText(field.getText().substring(0, MAX_DIGITS));
+            }
+        });
+    }
+
+    public static void numericValuesLessThanOneThousandOnly(final TextField field) {
+
+        // NUMERIC VALUES ONLY
+        field.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                field.setText(newValue.replaceAll("[^\\d]", ""));
+            }
+        });
+
+        // 3 DIGITS MAX (0,999]
+        int MAX_DIGITS = 3;
+        field.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.length() > MAX_DIGITS) {
                 field.setText(field.getText().substring(0, MAX_DIGITS));
             }
         });
