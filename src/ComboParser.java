@@ -14,6 +14,8 @@ public class ComboParser {
     private boolean firstRun;
     private int stepSizeMultiplier = 1;
     private int delta = 1;
+    int positiveOffset = 0;
+    int negativeOffset = 0;
 
     ComboParser(Dialer dialer){
         this.dialer = dialer;
@@ -36,7 +38,7 @@ public class ComboParser {
             setInitialCombo(dialer.getCurrentCombination());
             firstRun = false;
         }
-        String command = "TurnDial:";
+        String command = "003:";
         int ticksToTurn = 0;
 
         if(tryToOpen){
@@ -99,8 +101,21 @@ public class ComboParser {
         //System.out.println("Combo being turned: " + dialer.ToString());
         currPosition += ticksToTurn;
         currPosition = getCorrespondingDialNumber(currPosition);
+
+        /* ADDING BACKLASH COMPENSATION */
+        if(ticksToTurn < 0) { ticksToTurn -= negativeOffset;}
+        else if(ticksToTurn > 0){ ticksToTurn += positiveOffset;}
+
         command += Integer.toString(ticksToTurn * stepSizeMultiplier);
         return command;
+    }
+
+    public void setPositiveOffset(int positiveOffset) {
+        this.positiveOffset = positiveOffset;
+    }
+
+    public void setNegativeOffset(int negativeOffset){
+        this.negativeOffset = negativeOffset;
     }
 
     private boolean previousComboOnlyDiffersByLastNumber(){

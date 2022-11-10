@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="266.0" prefWidth="578.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="AutoDialerGUIController">
+<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="289.0" prefWidth="650.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="AutoDialerGUIController">
   <tabs>
     <Tab text="Control Panel">
       <content>
@@ -86,13 +86,21 @@
                                           <Insets top="5.0" />
                                        </VBox.margin>
                                     </HBox>
+                                    <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
+                                       <children>
+                                          <Label text="NOTE: use a Step Size of 1 to ensure accuracy with backlash comp" />
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets top="5.0" />
+                                       </VBox.margin>
+                                    </HBox>
                                     <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
                                        <children>
                                           <Label text="Backlash Comp. :" />
                                           <TextField fx:id="backlashTextBox" maxWidth="30.0" prefHeight="25.0" prefWidth="35.0" />
                                           <Label text="Set Offset" />
-                                          <Button mnemonicParsing="false" text="CC" />
-                                          <Button mnemonicParsing="false" text="CCW" />
+                                          <Button mnemonicParsing="false" onAction="#setCCOffset" text="CC" />
+                                          <Button mnemonicParsing="false" onAction="#setCCWOffset" text="CCW" />
                                        </children>
                                        <padding>
                                           <Insets top="10.0" />
@@ -100,8 +108,8 @@
                                     </HBox>
                                     <HBox prefHeight="100.0" prefWidth="200.0" spacing="15.0">
                                        <children>
-                                          <Button mnemonicParsing="false" text="+1 Step" />
-                                          <Button mnemonicParsing="false" text="-1 Step" />
+                                          <Button mnemonicParsing="false" onAction="#plusOneStep" text="+1 Step" />
+                                          <Button mnemonicParsing="false" onAction="#minusOneStep" text="-1 Step" />
                                        </children>
                                        <VBox.margin>
                                           <Insets top="5.0" />

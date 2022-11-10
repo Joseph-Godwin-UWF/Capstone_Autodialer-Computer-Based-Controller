@@ -35,6 +35,8 @@ public class AutoDialerGUIController {
     SerialPort microControllerSerialPort = null;
     SerialMessenger messenger;
 
+    int CCOffset = 0;
+    int CCWOffset = 0;
     Dialer dialer;
     int microStepMultiplier = 1;
     int[] stepSizeSelectionBits = new int[]{0, 0, 0};
@@ -108,7 +110,6 @@ public class AutoDialerGUIController {
             wait(500);
             code = messenger.getMessageCodeNumber(messenger.getNextMessage());
         }while(code == null || !code.equals("000"));
-        //FIXME: CLEAR MESSENGER BUFFER
     }
 
     /** Closes SerialPort
@@ -130,11 +131,15 @@ public class AutoDialerGUIController {
         dialer = new Dialer(getStartingCombination());
         comboParser = new ComboParser(dialer);
         comboParser.setStepSizeMultiplier(microStepMultiplier);
+        comboParser.setNegativeOffset(CCWOffset);
+        comboParser.setPositiveOffset(CCOffset);
 
         dialThread = new StopThread();
         dialThread.start();
         startDialingButton.setDisable(true);
         stopDialingButton.setDisable(false);
+        messenger.clearMessageBuffer();
+        messenger.sendMessage("003:0"); //turn dial 0 ticks;
     }
 
     /** Stops the dialer thread and updates current combination */
@@ -150,7 +155,7 @@ public class AutoDialerGUIController {
             bits.append(Integer.toString(bit));
         }
         return bits.toString();
-    } //FIXME: VERIFY THIS WORKS
+    }
 
     private void updatePortSelectionComboBox(){
         coms = SerialPort.getCommPorts();
@@ -249,6 +254,28 @@ public class AutoDialerGUIController {
         return new int[] { 0 ,0 ,0 };
     }
 
+    public void plusOneStep(){
+        messenger.sendMessage("003:1");
+    }
+
+    public void minusOneStep(){
+        messenger.sendMessage("003:-1");
+    }
+
+    public void setCCOffset(){
+        if(backlashTextBox.getText().isEmpty())
+            return;
+        CCOffset = Integer.parseInt(backlashTextBox.getText());
+        System.out.println("CCOffset: " + CCOffset);
+    }
+
+    public void setCCWOffset(){
+        if(backlashTextBox.getText().isEmpty())
+            return;
+        CCWOffset = Integer.parseInt(backlashTextBox.getText());
+        System.out.println("CCWOffset: " + CCWOffset);
+    }
+
     class StopThread extends Thread {
         /* Setting the volatile variable
            exit to false */
@@ -279,7 +306,7 @@ public class AutoDialerGUIController {
                             //-allow "start dialing"
                             System.out.println("ARDUINO READY TO ACCEPT TURN COMMANDS");
                             break;
-                        case "001":
+                        case "003":
                             messenger.sendMessage(comboParser.getNextRotationCommand());
                             combinationTextBox.setText("Dialing: " + comboParser.getComboAsString());
                             break;
@@ -298,14 +325,14 @@ public class AutoDialerGUIController {
                                 }
                             }
                             break;
-                        case "003":
+                        case "333":
                             //FIXME: ADD TORQUE DATA TO ARRAYLIST
                             int index = message.indexOf('>');
                             String data = message.substring(index + 1).trim();
                             System.out.println("Adding to torqueData: " + data);
                             torqueReadings.add(Integer.parseInt(data));
                             break;
-                        case "600":
+                        case "334":
                             //FIXME: invalid message
                             // -waiting for SetUpStepper message
                             // -prompt for setup stepper

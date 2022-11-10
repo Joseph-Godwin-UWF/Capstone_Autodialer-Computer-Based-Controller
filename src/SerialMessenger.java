@@ -56,6 +56,10 @@ public class SerialMessenger implements SerialPortMessageListener {
         this.serialPort.addDataListener(this);
     }
 
+    void clearMessageBuffer(){
+        dataBuffer.clear();
+    }
+
     String getNextMessage(){
         if(dataBuffer.size() == 0)
             return null;
