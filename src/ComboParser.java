@@ -76,7 +76,7 @@ public class ComboParser {
                         ticksToTurn += combo[0] - combo[1];
                     }
                     else{
-                        ticksToTurn += 100 - combo[1] - combo[0];
+                        ticksToTurn += combo[0] + (100 - combo[1]);
                     }
                     this.index = 2;
                     break;
