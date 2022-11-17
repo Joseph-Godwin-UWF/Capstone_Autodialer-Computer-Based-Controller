@@ -309,8 +309,9 @@ public class AutoDialerGUIController {
                         case "003":
                             messenger.sendMessage(comboParser.getNextRotationCommand());
                             combinationTextBox.setText("Dialing: " + comboParser.getComboAsString());
+                            System.out.println("Dialing: " + comboParser.getComboAsString());
                             break;
-                        case "002":
+                        case "555":
                             //FIXME Previous dial turn complete, open bolt torque threshold reached(safe presumed unlocked)
                             // -combination likely found
                             // -task complete

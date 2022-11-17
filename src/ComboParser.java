@@ -2,6 +2,8 @@ public class ComboParser {
     public static boolean FirstComboDialed = false;
     public static final int POLARITY = -1;
     public static final int NO_PREVIOUS_COMBO = -998;
+
+    public static final int STEPS_PER_TICK = 2;
     public static final int UNLOCK_INDEX = 80;
     private final double degreesPerTick;
     private final Dialer dialer;
@@ -13,7 +15,7 @@ public class ComboParser {
     private boolean tryToOpen;
     private boolean firstRun;
     private int stepSizeMultiplier = 1;
-    private int delta = 1;
+    private int delta = 2;
     int positiveOffset = 0;
     int negativeOffset = 0;
 
@@ -102,11 +104,14 @@ public class ComboParser {
         currPosition += ticksToTurn;
         currPosition = getCorrespondingDialNumber(currPosition);
 
+        /* CONVERTING TO STEPS */
+        ticksToTurn *= STEPS_PER_TICK;
         /* ADDING BACKLASH COMPENSATION */
         if(ticksToTurn < 0) { ticksToTurn -= negativeOffset;}
         else if(ticksToTurn > 0){ ticksToTurn += positiveOffset;}
 
         command += Integer.toString(ticksToTurn * stepSizeMultiplier);
+        System.out.println(command);
         return command;
     }
 
