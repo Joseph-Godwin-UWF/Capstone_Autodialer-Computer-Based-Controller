@@ -324,6 +324,8 @@ public class AutoDialerGUIController {
                                  } catch (IOException e) {
                                    throw new RuntimeException(e);
                                 }
+                                combinationTextBox.setText("COMBO: " + dialer.ToString());
+                                stopDialingButtonPressed();
                             }
                             break;
                         case "333":
