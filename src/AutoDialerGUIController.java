@@ -66,6 +66,10 @@ public class AutoDialerGUIController {
         messenger.sendMessage(header + stepBits);
     }
 
+    public void sendCalibrationCommand(){
+        messenger.sendMessage("004:-10000");
+    }
+
     public void setDialingSpeedButtonPressed(){
         String header = "002:";
         int dialingSpeed;

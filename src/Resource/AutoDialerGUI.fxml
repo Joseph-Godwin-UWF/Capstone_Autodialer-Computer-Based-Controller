@@ -148,6 +148,11 @@
                                           <TextField fx:id="combo3" maxWidth="30.0" />
                                        </children>
                                     </HBox>
+                                    <HBox>
+                                       <children>
+                                          <Button mnemonicParsing="false" onAction="#sendCalibrationCommand" text="Calibrate Torque Threshold" />
+                                       </children>
+                                    </HBox>
                                     <HBox spacing="10.0">
                                        <children>
                                           <Button fx:id="startDialingButton" mnemonicParsing="false" onAction="#startDialingButtonPressed" text="Start Dialing" />
