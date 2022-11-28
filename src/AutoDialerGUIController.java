@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 
 public class AutoDialerGUIController {
@@ -53,7 +52,7 @@ public class AutoDialerGUIController {
         numericValuesLessThanOneHundredOnly(combo1);
         numericValuesLessThanOneHundredOnly(combo2);
         numericValuesLessThanOneHundredOnly(combo3);
-        numericValuesLessThanOneThousandOnly(dialingSpeedTextBox);
+        numericValuesLessThanOneHundredThousandOnly(dialingSpeedTextBox);
         numericValuesLessThanOneHundredOnly(backlashTextBox);
         closePortButton.setDisable(true);
         stopDialingButton.setDisable(true);
@@ -67,7 +66,7 @@ public class AutoDialerGUIController {
     }
 
     public void sendCalibrationCommand(){
-        messenger.sendMessage("004:-10000");
+        messenger.sendMessage("004:-32000");
     }
 
     public void setDialingSpeedButtonPressed(){
@@ -228,7 +227,7 @@ public class AutoDialerGUIController {
         });
     }
 
-    public static void numericValuesLessThanOneThousandOnly(final TextField field) {
+    public static void numericValuesLessThanOneHundredThousandOnly(final TextField field) {
 
         // NUMERIC VALUES ONLY
         field.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -237,8 +236,8 @@ public class AutoDialerGUIController {
             }
         });
 
-        // 3 DIGITS MAX (0,999]
-        int MAX_DIGITS = 3;
+        // 3 DIGITS MAX (0,9999]
+        int MAX_DIGITS = 4;
         field.textProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.length() > MAX_DIGITS) {
                 field.setText(field.getText().substring(0, MAX_DIGITS));
@@ -346,7 +345,7 @@ public class AutoDialerGUIController {
                             System.out.println("Invalid message, send SetUpStepper message");
                             break;
                         default:
-                            System.out.print("Invalid: " + message);
+                            //System.out.print("Invalid: " + message);
 
                     }
                 }
